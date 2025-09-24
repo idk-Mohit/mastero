@@ -1,0 +1,16 @@
+{
+  "name": "mastero",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c green,cyan \"pnpm --filter ./backend dev\" \"pnpm --filter ./frontend dev\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
