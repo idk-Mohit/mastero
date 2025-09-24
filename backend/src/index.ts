@@ -4,10 +4,10 @@ import cors from "cors";
 import { config } from "./config";
 import router from "./routes";
 import { errorHandler } from "./middleware/error.middleware";
-import { seedDatabase } from "./config/seed";
+// import { seedDatabase } from "./config/seed";
 
 async function start() {
-  await seedDatabase(); // 👈 run schema before app listens
+  // await seedDatabase(); // 👈 run schema before app listens
 
   const app = express();
 
