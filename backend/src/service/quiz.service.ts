@@ -19,7 +19,7 @@ const quizService = {
       );
 
       const correctMap: Record<string, string> = {}; // question_id => correct_option_id
-      rows.forEach((opt) => {
+      rows.forEach((opt: any) => {
         if (opt.is_correct) {
           correctMap[opt.question_id] = opt.option_id;
         }

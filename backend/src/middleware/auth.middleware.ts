@@ -23,7 +23,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
       accessToken,
       config.jwt.secret
     ) as jwt.JwtPayload;
-    req.user = { id: payload.id, email: payload.email, role: payload.role };
+    (req as any).user = {
+      id: payload.id,
+      email: payload.email,
+      role: payload.role,
+    };
     return next();
   } catch (err: any) {
     // ❌ If expired, try refresh
@@ -43,12 +47,12 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
         res.cookie(ACCESS_COOKIE, newAccessToken, {
           httpOnly: true,
-          secure: config.nodeEnv === "production",
+          secure: config.node_env === "production",
           sameSite: "strict",
           maxAge: 15 * 60 * 1000, // 15 mins
         });
 
-        req.user = {
+        (req as any).user = {
           id: payload.id,
           email: payload.email,
           role: payload.role,

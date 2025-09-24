@@ -20,7 +20,7 @@ const authService = {
       const query = "insert into users(email, password, role) values(?, ?, ?)";
       const values = [email, passwordHash, role];
 
-      const [result] = await dbPool.query(query, values);
+      const [result]: any = await dbPool.query(query, values);
 
       if (result.affectedRows > 0) {
         return genericResponse({
@@ -45,7 +45,7 @@ const authService = {
         "select id, email, role, password from users where email = ?";
       const values = [email];
 
-      const [result] = await dbPool.query(query, values);
+      const [result]: any = await dbPool.query(query, values);
 
       if (result.length > 0) {
         const user = result[0];

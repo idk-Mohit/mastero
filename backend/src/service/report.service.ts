@@ -33,7 +33,7 @@ const reportService = {
         });
       }
 
-      const attemptIds = attempts.map((a) => a.id);
+      const attemptIds = attempts.map((a: { id: string }) => a.id);
       const [answers]: any[] = await dbPool.query(
         `SELECT attempt_id, question_id, selected_option_id, is_correct, answered_at
          FROM quiz_answers
@@ -42,14 +42,14 @@ const reportService = {
       );
 
       const answersByAttempt: Record<string, any[]> = {};
-      answers.forEach((ans) => {
+      answers.forEach((ans: any) => {
         if (!answersByAttempt[ans.attempt_id]) {
           answersByAttempt[ans.attempt_id] = [];
         }
         answersByAttempt[ans.attempt_id].push(ans);
       });
 
-      const report = attempts.map((attempt) => ({
+      const report = attempts.map((attempt: any) => ({
         ...attempt,
         answers: answersByAttempt[attempt.id] || [],
       }));
@@ -131,7 +131,7 @@ const reportService = {
 
       // 3. Group answers by question
       const questionsMap: any = {};
-      answers.forEach((row) => {
+      answers.forEach((row: any) => {
         if (!questionsMap[row.question_id]) {
           questionsMap[row.question_id] = {
             question_id: row.question_id,

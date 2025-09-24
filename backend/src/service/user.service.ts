@@ -6,7 +6,7 @@ const userService = {
     try {
       const query = "select * from users where email = ?";
       const values = [email];
-      const [result] = await dbPool.query(query, values);
+      const [result]: any = await dbPool.query(query, values);
 
       if (result.length === 0) {
         return genericResponse({

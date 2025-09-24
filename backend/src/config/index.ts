@@ -29,4 +29,5 @@ export const config = {
       .split(",")
       .map((o) => o.trim()),
   },
+  node_env: process.env.NODE_ENV,
 };
