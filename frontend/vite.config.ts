@@ -22,7 +22,7 @@ export default defineConfig({
     proxy: {
       // anything starting with /api will be proxied
       "/api": {
-        target: "http://localhost:4000",
+        target: "https://mastero-backend.vercel.app",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
