@@ -7,11 +7,11 @@ import { config } from "../config";
 
 const authController = {
   register: asyncHandler(async (req: Request, res: Response) => {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
     const response: GenericResponse = await authService.register(
       email,
       password,
-      role
+      "user"
     );
     res.status(response.statusCode ?? 200).json(response);
   }),

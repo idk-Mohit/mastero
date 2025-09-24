@@ -1,19 +1,6 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import ReportAttemptsView, {
-  type AttemptDetail,
-  type AttemptRow,
-} from "../reports/ReportAttempView";
+import type { AttemptDetail, AttemptRow } from "../reports/ReportAttempView";
+import ReportAttemptsView from "../reports/ReportAttempView";
 
 type Report = {
   id: string;
@@ -73,56 +60,52 @@ export default function ReportsSection() {
   }));
 
   return (
-    <Card className="h-full">
-      <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <CardTitle>User Reports</CardTitle>
+    <div className="card-enhanced rounded-xl p-6 animate-fade-in">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+        <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          User Reports
+        </h2>
+
         <div className="flex flex-wrap gap-3">
-          <Select
+          <select
             value={viewMode}
-            onValueChange={(v: "all" | "user") => setViewMode(v)}
+            onChange={(e) => setViewMode(e.target.value as "all" | "user")}
+            className="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
           >
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Select view" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Users</SelectItem>
-              <SelectItem value="user">By User</SelectItem>
-            </SelectContent>
-          </Select>
+            <option value="all">All Users</option>
+            <option value="user">By User</option>
+          </select>
 
           {viewMode === "user" && (
-            <Input
+            <input
               type="text"
               placeholder="Enter User ID"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              className="w-[160px]"
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
             />
           )}
 
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Filter by time" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Time</SelectItem>
-              <SelectItem value="week">Last 7 Days</SelectItem>
-              <SelectItem value="month">Last 30 Days</SelectItem>
-            </SelectContent>
-          </Select>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+          >
+            <option value="all">All Time</option>
+            <option value="week">Last 7 Days</option>
+            <option value="month">Last 30 Days</option>
+          </select>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent>
-        <ReportAttemptsView
-          title={viewMode === "all" ? "All Attempts" : "User Attempts"}
-          attempts={rows}
-          loading={loading}
-          showUserColumn={viewMode === "all"}
-          onRefresh={loadReports}
-          fetchAttemptDetail={fetchAttemptDetail}
-        />
-      </CardContent>
-    </Card>
+      <ReportAttemptsView
+        title={viewMode === "all" ? "All Attempts" : "User Attempts"}
+        attempts={rows}
+        loading={loading}
+        showUserColumn={viewMode === "all"}
+        onRefresh={loadReports}
+        fetchAttemptDetail={fetchAttemptDetail}
+      />
+    </div>
   );
 }

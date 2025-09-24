@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useLocation, useNavigate } from "react-router";
 import SkillsSection from "./admin/SkillSection";
 import QuestionsSection from "./admin/QuestionSection";
 import ReportsSection from "./admin/ReportSection";
-import { useLocation, useNavigate } from "react-router";
 
 export default function AdminDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState<
     "skills" | "questions" | "reports"
   >("skills");
 
-  // on load: prefer state.tab, then hash
   useEffect(() => {
     if (location.state?.tab) {
       const tab = location.state.tab as "skills" | "questions" | "reports";
       setActiveTab(tab);
-      navigate(`/admin#${tab}`, { replace: true, state: {} }); // clean state after using it
+      navigate(`/admin#${tab}`, { replace: true, state: {} });
     } else if (location.hash) {
       const tab = location.hash.replace("#", "") as
         | "skills"
@@ -35,39 +32,47 @@ export default function AdminDashboard() {
     navigate(`#${tab}`, { replace: true });
   };
 
-  return (
-    <div className="h-fit flex bg-background text-foreground">
-      {/* Sidebar */}
-      <aside className="w-60 border-r bg-muted/40 p-4 flex flex-col gap-2">
-        <Button
-          variant={activeTab === "skills" ? "default" : "ghost"}
-          className="justify-start"
-          onClick={() => handleTabChange("skills")}
-        >
-          Skills
-        </Button>
-        <Button
-          variant={activeTab === "questions" ? "default" : "ghost"}
-          className="justify-start"
-          onClick={() => handleTabChange("questions")}
-        >
-          Questions
-        </Button>
-        <Button
-          variant={activeTab === "reports" ? "default" : "ghost"}
-          className="justify-start"
-          onClick={() => handleTabChange("reports")}
-        >
-          Reports
-        </Button>
-      </aside>
+  const tabs = [
+    { id: "skills", label: "Skills", icon: "🎯" },
+    { id: "questions", label: "Questions", icon: "❓" },
+    { id: "reports", label: "Reports", icon: "📊" },
+  ];
 
-      {/* Main content */}
-      <main className="flex-1 h-[calc(100vh-65px)] overflow-y-auto p-6 space-y-6">
-        {activeTab === "skills" && <SkillsSection />}
-        {activeTab === "questions" && <QuestionsSection />}
-        {activeTab === "reports" && <ReportsSection />}
-      </main>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 glass rounded-r-2xl p-6 m-4 mr-0 animate-slide-up">
+          <div className="space-y-2">
+            {tabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() =>
+                  handleTabChange(tab.id as "skills" | "questions" | "reports")
+                }
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 stagger-item ${
+                  activeTab === tab.id
+                    ? "btn-gradient text-black shadow-lg"
+                    : "text-gray-500 hover:bg-white/50 hover:text-gray-900"
+                }`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <span className="text-lg">{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 p-6 overflow-y-auto max-h-screen">
+          <div className="animate-fade-in">
+            {activeTab === "skills" && <SkillsSection />}
+            {activeTab === "questions" && <QuestionsSection />}
+            {activeTab === "reports" && <ReportsSection />}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

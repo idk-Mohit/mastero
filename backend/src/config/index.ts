@@ -24,4 +24,9 @@ export const config = {
     refreshSecret: process.env.JWT_REFRESH_SECRET || "supersecretrefreshkey",
     saltRounds: parseInt(process.env.SALT_ROUNDS ?? "10", 10),
   },
+  cors: {
+    origins: (process.env.CORS_ORIGINS || "http://localhost:3000")
+      .split(",")
+      .map((o) => o.trim()),
+  },
 };

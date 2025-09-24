@@ -1,10 +1,7 @@
 import { useCallback } from "react";
 import { useAuthContext } from "../auth/AuthContext";
+import { toast } from "sonner";
 
-/**
- * Centralizes auth actions. Uses HttpOnly cookies on the server.
- * The hook updates AuthContext but keeps logic here.
- */
 export function useAuth() {
   const { user, loading, setUser, setLoading } = useAuthContext();
 
@@ -34,14 +31,37 @@ export function useAuth() {
           credentials: "include",
           body: JSON.stringify({ email, password }),
         });
-        if (!res.ok) throw new Error("Invalid credentials");
+
+        if (!res.ok) {
+          // try to surface server message if any
+          let serverMsg = "Invalid credentials";
+          try {
+            const maybeJson = await res.json();
+            serverMsg = maybeJson?.message || maybeJson?.error || serverMsg;
+          } catch {
+            // ignore JSON parse errors, keep default
+          }
+          throw new Error(serverMsg);
+        }
+
         const data = await res.json();
-        setUser(data?.data ?? null); // cookie set server-side
+        setUser(data?.data ?? null);
         return data?.data ?? null;
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        const msg = error?.message || "Login failed";
+
+        console.log(msg);
+        // 🔔 show toast here
+        toast.error("Login failed", {
+          description: msg,
+          action: {
+            label: "Dismiss",
+            onClick: () => {},
+          },
+        });
         setUser(null);
-        return null;
+        // ❗ rethrow so caller knows to stop navigation / show inline error
+        throw error;
       } finally {
         setLoading(false);
       }
@@ -59,11 +79,6 @@ export function useAuth() {
       setUser(null);
     }
   }, [setUser]);
-
-  // optional: auto-hydrate once from here (or do it in your root component)
-  // useEffect(() => {
-  //   if (loading) checkSession();
-  // }, [loading, checkSession]);
 
   return { user, loading, authenticated: !!user, login, logout, checkSession };
 }

@@ -1,21 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
 export type AttemptRow = {
   id: string;
@@ -23,7 +6,6 @@ export type AttemptRow = {
   score_pct: number;
   started_at: string;
   completed_at: string | null;
-  // optional admin column
   email?: string;
   user_id?: string;
 };
@@ -53,7 +35,7 @@ type Props = {
   title?: string;
   attempts: AttemptRow[];
   loading?: boolean;
-  showUserColumn?: boolean; // show user/email column (admin view)
+  showUserColumn?: boolean;
   onRefresh?: () => void;
   fetchAttemptDetail: (attemptId: string) => Promise<AttemptDetail>;
 };
@@ -78,37 +60,61 @@ function OptionItem({
 }) {
   return (
     <div
-      className={`flex items-center justify-between gap-2 rounded-md border p-2 ${
+      className={`flex items-center justify-between gap-3 rounded-lg p-3 transition-all duration-200 ${
         isCorrect
-          ? "border-green-500/60 bg-green-500/10"
+          ? "bg-gradient-to-r from-green-50 to-green-100 border border-green-200"
           : isSelected
-          ? "border-red-500/60 bg-red-500/10"
-          : "border-muted"
+          ? "bg-gradient-to-r from-red-50 to-red-100 border border-red-200"
+          : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
       }`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {isCorrect ? (
-          <CheckCircle className="h-4 w-4 text-green-600" />
+          <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+            <svg
+              className="w-3 h-3 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
         ) : isSelected ? (
-          <XCircle className="h-4 w-4 text-red-600" />
+          <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
+            <svg
+              className="w-3 h-3 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
         ) : (
-          <div className="h-4 w-4" />
+          <div className="w-5 h-5 rounded-full bg-gray-300" />
         )}
-        <span className="text-sm">
+        <span className="text-sm font-medium text-gray-700">
           {opt.label}. {opt.text}
         </span>
       </div>
 
       <div className="flex items-center gap-2">
         {isSelected && (
-          <Badge variant="secondary" className="text-xs">
+          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
             Your choice
-          </Badge>
+          </span>
         )}
         {isCorrect && (
-          <Badge className="bg-green-600 hover:bg-green-600 text-xs">
+          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
             Correct
-          </Badge>
+          </span>
         )}
       </div>
     </div>
@@ -134,7 +140,6 @@ export default function ReportAttemptsView({
     setLoadingDetail(true);
     try {
       const detail = await fetchAttemptDetail(attemptId);
-      // shuffle options ONCE per question
       const shuffled = {
         ...detail,
         questions: detail.questions.map((q) => ({
@@ -152,118 +157,209 @@ export default function ReportAttemptsView({
   };
 
   return (
-    <Card>
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle>{title}</CardTitle>
-        {onRefresh ? (
+    <div className="card-enhanced rounded-xl p-6 animate-fade-in">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          {title}
+        </h2>
+        {onRefresh && (
           <button
             onClick={onRefresh}
-            className="text-sm underline underline-offset-4 text-muted-foreground"
+            className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-all duration-200"
           >
             Refresh
           </button>
-        ) : null}
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <p className="text-center py-10">Loading…</p>
-        ) : attempts.length === 0 ? (
-          <p className="text-muted-foreground">No reports found.</p>
-        ) : (
-          <Table>
-            <TableHeader className="bg-background text-foreground">
-              <TableRow>
-                {showUserColumn && <TableHead>User</TableHead>}
-                <TableHead>Quiz</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Started</TableHead>
-                <TableHead>Completed</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {attempts.map((r) => (
-                <TableRow
+        )}
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="spinner w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full"></div>
+        </div>
+      ) : attempts.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-500 font-medium">No reports found</p>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-lg border border-gray-200">
+          <table className="w-full">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                {showUserColumn && (
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    User
+                  </th>
+                )}
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Quiz
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Score
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Started
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Completed
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {attempts.map((r, index) => (
+                <tr
                   key={r.id}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="table-row-hover cursor-pointer stagger-item"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                   onClick={() => handleRowClick(r.id)}
                 >
                   {showUserColumn && (
-                    <TableCell>{r.email || r.user_id}</TableCell>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      {r.email || r.user_id}
+                    </td>
                   )}
-                  <TableCell>{r.quiz_id}</TableCell>
-                  <TableCell>{r.score_pct}%</TableCell>
-                  <TableCell>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {r.quiz_id}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        r.score_pct >= 80
+                          ? "bg-green-100 text-green-800"
+                          : r.score_pct >= 60
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {r.score_pct}%
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500">
                     {new Date(r.started_at).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500">
                     {r.completed_at
                       ? new Date(r.completed_at).toLocaleString()
                       : "—"}
-                  </TableCell>
-                </TableRow>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {/* Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Attempt Details</DialogTitle>
-          </DialogHeader>
-
-          {loadingDetail ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : attemptDetail ? (
-            <div className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Quiz ID: {attemptDetail.quiz_id} • Score:{" "}
-                {attemptDetail.score_pct}%
-              </p>
-
-              <div className="space-y-4">
-                {attemptDetail.questions.map((q) => (
-                  <Card
-                    key={q.question_id}
-                    className="bg-background text-foreground"
+      {/* Modal */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl max-h-[90vh] overflow-y-auto m-4 animate-scale-in">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Attempt Details
+                </h3>
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                >
+                  <svg
+                    className="w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <div className="px-6 pt-6 pb-2 font-medium">{q.text}</div>
-                    <CardContent className="space-y-2">
-                      {q.options.map((opt) => {
-                        const selectedId =
-                          q.selected_option_id != null
-                            ? String(q.selected_option_id)
-                            : "";
-                        const optionId = opt.id != null ? String(opt.id) : "";
-                        const isSelected =
-                          selectedId !== "" && optionId === selectedId;
-                        const isCorrect = !!opt.is_correct;
-
-                        return (
-                          <OptionItem
-                            key={String(opt.id)}
-                            opt={opt}
-                            isSelected={isSelected}
-                            isCorrect={isCorrect}
-                          />
-                        );
-                      })}
-                    </CardContent>
-                  </Card>
-                ))}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-6">
-              Unable to load attempt details.
-            </p>
-          )}
-        </DialogContent>
-      </Dialog>
-    </Card>
+
+            <div className="p-6">
+              {loadingDetail ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="spinner w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full"></div>
+                </div>
+              ) : attemptDetail ? (
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600">
+                      Quiz ID:{" "}
+                      <span className="font-medium">
+                        {attemptDetail.quiz_id}
+                      </span>{" "}
+                      • Score:{" "}
+                      <span className="font-medium text-purple-600">
+                        {attemptDetail.score_pct}%
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {attemptDetail.questions.map((q, index) => (
+                      <div
+                        key={q.question_id}
+                        className="bg-white border border-gray-200 rounded-lg p-6 animate-slide-up"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <h4 className="font-semibold text-gray-900 mb-4">
+                          {q.text}
+                        </h4>
+                        <div className="space-y-3">
+                          {q.options.map((opt) => {
+                            const selectedId =
+                              q.selected_option_id != null
+                                ? String(q.selected_option_id)
+                                : "";
+                            const optionId =
+                              opt.id != null ? String(opt.id) : "";
+                            const isSelected =
+                              selectedId !== "" && optionId === selectedId;
+                            const isCorrect = !!opt.is_correct;
+
+                            return (
+                              <OptionItem
+                                key={String(opt.id)}
+                                opt={opt}
+                                isSelected={isSelected}
+                                isCorrect={isCorrect}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">
+                    Unable to load attempt details.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
