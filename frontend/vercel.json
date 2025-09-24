@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://mastero-backend.vercel.app/$1"
+    }
+  ]
+}
