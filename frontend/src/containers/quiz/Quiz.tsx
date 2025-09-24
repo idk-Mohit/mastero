@@ -27,7 +27,7 @@ const Quiz = () => {
     const getSkills = async () => {
       try {
         const response = await fetch({ url: "/api/skills", method: "GET" });
-        setSkills(response.data);
+        setSkills(response.data ?? []);
       } catch (error) {
         console.error("Failed to fetch skills", error);
       } finally {
